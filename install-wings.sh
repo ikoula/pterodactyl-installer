@@ -69,8 +69,8 @@ CONFIGURE_FIREWALL_CMD=false
 
 # SSL (Let's Encrypt)
 CONFIGURE_LETSENCRYPT=false
-FQDN=""
-EMAIL=""
+FQDN=`sudo curl -sk "https://revprx.ikoula.com/index.php?r=wsds/GetServerNameByIp&IP=$(hostname -I | cut -d ' ' -f 1)" | awk -F ':' '{ print $4}' | tr -d '}' | tr -d '"' | tr '[:upper:]' '[:lower:]'`
+EMAIL="root@${FQDN}"
 
 #################################
 ####### Version checking ########
@@ -478,15 +478,15 @@ perform_install() {
 
 main() {
   # check if we can detect an already existing installation
-  if [ -d "/etc/pterodactyl" ]; then
-    print_warning "The script has detected that you already have Pterodactyl wings on your system! You cannot run the script multiple times, it will fail!"
-    echo -e -n "* Are you sure you want to proceed? (y/N): "
-    read -r CONFIRM_PROCEED
-    if [[ ! "$CONFIRM_PROCEED" =~ [Yy] ]]; then
-      print_error "Installation aborted!"
-      exit 1
-    fi
-  fi
+  #if [ -d "/etc/pterodactyl" ]; then
+  #  print_warning "The script has detected that you already have Pterodactyl wings on your system! You cannot run the script multiple times, it will fail!"
+  #  echo -e -n "* Are you sure you want to proceed? (y/N): "
+  #  read -r CONFIRM_PROCEED
+  #  if [[ ! "$CONFIRM_PROCEED" =~ [Yy] ]]; then
+  #    print_error "Installation aborted!"
+  #    exit 1
+  #  fi
+  #fi
 
   # detect distro
   detect_distro
@@ -518,21 +518,25 @@ main() {
   print_brake 42
 
   echo -e "* ${COLOR_RED}Note${COLOR_NC}: If you installed the Pterodactyl panel on the same machine, do not use this option or the script will fail!"
-  echo -n "* Would you like to install MariaDB (MySQL) server on the daemon as well? (y/N): "
+  #echo -n "* Would you like to install MariaDB (MySQL) server on the daemon as well? (y/N): "
 
-  read -r CONFIRM_INSTALL_MARIADB
-  [[ "$CONFIRM_INSTALL_MARIADB" =~ [Yy] ]] && INSTALL_MARIADB=true
+  #read -r CONFIRM_INSTALL_MARIADB
+  #[[ "$CONFIRM_INSTALL_MARIADB" =~ [Yy] ]] && INSTALL_MARIADB=true
+  INSTALL_MARIADB=false
 
   # UFW is available for Ubuntu/Debian
-  if [ "$OS" == "debian" ] || [ "$OS" == "ubuntu" ]; then
-    echo -e -n "* Do you want to automatically configure UFW (firewall)? (y/N): "
-    read -r CONFIRM_UFW
+  #if [ "$OS" == "debian" ] || [ "$OS" == "ubuntu" ]; then
+    #echo -e -n "* Do you want to automatically configure UFW (firewall)? (y/N): "
+    #read -r CONFIRM_UFW
 
-    if [[ "$CONFIRM_UFW" =~ [Yy] ]]; then
-      CONFIGURE_UFW=true
-      CONFIGURE_FIREWALL=true
-    fi
-  fi
+    #if [[ "$CONFIRM_UFW" =~ [Yy] ]]; then
+    #  CONFIGURE_UFW=true
+    #  CONFIGURE_FIREWALL=true
+    #fi
+  #fi
+
+  CONFIGURE_UFW=false
+  CONFIGURE_FIREWALL=false
 
   # Firewall-cmd is available for CentOS
   if [ "$OS" == "centos" ]; then
@@ -545,7 +549,8 @@ main() {
     fi
   fi
 
-  ask_letsencrypt
+  #ask_letsencrypt
+  CONFIGURE_LETSENCRYPT=false
 
   if [ "$CONFIGURE_LETSENCRYPT" == true ]; then
     while [ -z "$FQDN" ]; do
@@ -579,10 +584,11 @@ main() {
     done
   fi
 
-  echo -n "* Proceed with installation? (y/N): "
+  #echo -n "* Proceed with installation? (y/N): "
 
-  read -r CONFIRM
-  [[ "$CONFIRM" =~ [Yy] ]] && perform_install && return
+  #read -r CONFIRM
+  #[[ "$CONFIRM" =~ [Yy] ]] && perform_install && return
+  perform_install && return
 
   print_error "Installation aborted"
   exit 0
