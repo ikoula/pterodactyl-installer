@@ -49,22 +49,29 @@ fi
 GITHUB_SOURCE="master"
 SCRIPT_RELEASE="canary"
 
-FQDN=""
+# Using Ikoula webservice to get FQDN
+FQDN=`sudo curl -sk "https://revprx.ikoula.com/index.php?r=wsds/GetServerNameByIp&IP=$(hostname -I | cut -d ' ' -f 1)" | awk -F ':' '{ print $4}' | tr -d '}' | tr -d '"' | tr '[:upper:]' '[:lower:]'`
 
 # Default MySQL credentials
 MYSQL_DB="pterodactyl"
 MYSQL_USER="pterodactyl"
-MYSQL_PASSWORD=""
+MYSQL_PASSWORD=`sudo pwgen -n 20 -y -1 | tee /root/MYSQL_PASSWORD`
 
 # Environment
-email=""
+email="root@${FQDN}"
 
 # Initial admin account
-user_email=""
-user_username=""
-user_firstname=""
-user_lastname=""
-user_password=""
+user_email="root@${FQDN}"
+
+# We use the first part of the fqdn (hostname)
+# it is of the form
+# csikx015012-EU-FR-IKDC2-Z5-BASIC.ikexpress.com
+# cs051001.ikoula.com
+
+user_username=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_firstname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_password=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
 
 # Assume SSL, will fetch different config if true
 ASSUME_SSL=false
@@ -850,38 +857,42 @@ main() {
   echo ""
 
   echo -n "* Database name (panel): "
-  read -r MYSQL_DB_INPUT
+  #read -r MYSQL_DB_INPUT
 
-  [ -z "$MYSQL_DB_INPUT" ] && MYSQL_DB="panel" || MYSQL_DB=$MYSQL_DB_INPUT
+  #[ -z "$MYSQL_DB_INPUT" ] && MYSQL_DB="panel" || MYSQL_DB=$MYSQL_DB_INPUT
+  MYSQL_DB="panel"
 
   echo -n "* Username (pterodactyl): "
-  read -r MYSQL_USER_INPUT
+  #read -r MYSQL_USER_INPUT
 
-  [ -z "$MYSQL_USER_INPUT" ] && MYSQL_USER="pterodactyl" || MYSQL_USER=$MYSQL_USER_INPUT
+  #[ -z "$MYSQL_USER_INPUT" ] && MYSQL_USER="pterodactyl" || MYSQL_USER=$MYSQL_USER_INPUT
+  MYSQL_USER="pterodactyl"
 
   # MySQL password input
   rand_pw=$(tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 64  ; echo)
-  password_input MYSQL_PASSWORD "Password (press enter to use randomly generated password): " "MySQL password cannot be empty" "$rand_pw"
+  #password_input MYSQL_PASSWORD "Password (press enter to use randomly generated password): " "MySQL password cannot be empty" "$rand_pw"
+  MYSQL_PASSWORD=$rand_pw
 
-  readarray -t valid_timezones <<< "$(curl -s $GITHUB_BASE_URL/configs/valid_timezones.txt)"
-  echo "* List of valid timezones here $(hyperlink "https://www.php.net/manual/en/timezones.php")"
+  #readarray -t valid_timezones <<< "$(curl -s $GITHUB_BASE_URL/configs/valid_timezones.txt)"
+  #echo "* List of valid timezones here $(hyperlink "https://www.php.net/manual/en/timezones.php")"
 
-  while [ -z "$timezone" ]; do
-    echo -n "* Select timezone [Europe/Stockholm]: "
-    read -r timezone_input
+  #while [ -z "$timezone" ]; do
+    #echo -n "* Select timezone [Europe/Stockholm]: "
+    #read -r timezone_input
   
-    array_contains_element "$timezone_input" "${valid_timezones[@]}" && timezone="$timezone_input"
-    [ -z "$timezone_input" ] && timezone="Europe/Stockholm" # because köttbullar!
-  done
+    #array_contains_element "$timezone_input" "${valid_timezones[@]}" && timezone="$timezone_input"
+    #[ -z "$timezone_input" ] && timezone="Europe/Stockholm" # because köttbullar!
+  #done
+  timezone="Europe/Paris" # Because... Ikoula :)
 
-  required_input email "Provide the email address that will be used to configure Let's Encrypt and Pterodactyl: " "Email cannot be empty"
+  #required_input email "Provide the email address that will be used to configure Let's Encrypt and Pterodactyl: " "Email cannot be empty"
 
   # Initial admin account
-  required_input user_email "Email address for the initial admin account: " "Email cannot be empty"
-  required_input user_username "Username for the initial admin account: " "Username cannot be empty"
-  required_input user_firstname "First name for the initial admin account: " "Name cannot be empty"
-  required_input user_lastname "Last name for the initial admin account: " "Name cannot be empty"
-  password_input user_password "Password for the initial admin account: " "Password cannot be empty"
+  #required_input user_email "Email address for the initial admin account: " "Email cannot be empty"
+  #required_input user_username "Username for the initial admin account: " "Username cannot be empty"
+  #required_input user_firstname "First name for the initial admin account: " "Name cannot be empty"
+  #required_input user_lastname "Last name for the initial admin account: " "Name cannot be empty"
+  #password_input user_password "Password for the initial admin account: " "Password cannot be empty"
 
   print_brake 72
 
@@ -893,30 +904,31 @@ main() {
   done
 
   # Ask if firewall is needed
-  ask_firewall
+  #ask_firewall
 
   # Ask if letsencrypt is needed
-  ask_letsencrypt
+  #ask_letsencrypt
 
   # If it's already true, this should be a no-brainer
-  [ "$CONFIGURE_LETSENCRYPT" == false ] && ask_assume_ssl
+  #[ "$CONFIGURE_LETSENCRYPT" == false ] && ask_assume_ssl
 
   # verify FQDN if user has selected to assume SSL or configure Let's Encrypt
   [ "$CONFIGURE_LETSENCRYPT" == true ] || [ "$ASSUME_SSL" == true ] && bash <(curl -s $GITHUB_BASE_URL/lib/verify-fqdn.sh) "$FQDN" "$OS"
 
   # summary
-  summary
+  #summary
 
   # confirm installation
   echo -e -n "\n* Initial configuration completed. Continue with installation? (y/N): "
-  read -r CONFIRM
-  if [[ "$CONFIRM" =~ [Yy] ]]; then
-    perform_install
-  else
+  #read -r CONFIRM
+  #if [[ "$CONFIRM" =~ [Yy] ]]; then
+  #  perform_install
+  #else
     # run welcome script again
-    print_error "Installation aborted."
-    exit 1
-  fi
+  #  print_error "Installation aborted."
+  #  exit 1
+  #fi
+  perform_install
 }
 
 summary() {
