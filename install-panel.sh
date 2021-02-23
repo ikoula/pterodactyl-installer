@@ -706,7 +706,7 @@ letsencrypt() {
   esac
 
   # Obtain certificate
-  certbot --nginx --redirect --no-eff-email --email "$email" -d "$FQDN" || FAILED=true
+  certbot --nginx --redirect --no-eff-email --email "$email" -d "$FQDN" --agree-tos -n || FAILED=true
 
   # Check if it succeded
   if [ ! -d "/etc/letsencrypt/live/$FQDN/" ] || [ "$FAILED" == true ]; then
