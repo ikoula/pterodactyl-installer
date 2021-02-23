@@ -98,7 +98,6 @@ main() {
   fqdn="$1"
   os="$2"
   dep_install
-  confirm
   dns_verify
 }
 
