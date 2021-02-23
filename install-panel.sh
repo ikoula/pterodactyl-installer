@@ -51,6 +51,7 @@ SCRIPT_RELEASE="canary"
 
 # Using Ikoula webservice to get FQDN
 FQDN=`sudo curl -sk "https://revprx.ikoula.com/index.php?r=wsds/GetServerNameByIp&IP=$(hostname -I | cut -d ' ' -f 1)" | awk -F ':' '{ print $4}' | tr -d '}' | tr -d '"' | tr '[:upper:]' '[:lower:]'`
+echo $FQDN > /root/FQDN
 
 # Default MySQL credentials
 MYSQL_DB="pterodactyl"
@@ -69,13 +70,14 @@ user_email="root@${FQDN}"
 # cs051001.ikoula.com
 
 user_username=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+echo $user_username > /root/USERNAME
 user_firstname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
 user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
-user_password=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_password=`sudo pwgen -n 20 -y -1 | tee /root/USERNAME_PASSWORD`
 
 # Assume SSL, will fetch different config if true
-ASSUME_SSL=false
-CONFIGURE_LETSENCRYPT=false
+ASSUME_SSL=yes
+CONFIGURE_LETSENCRYPT=yes
 
 # download URLs
 PANEL_DL_URL="https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz"
