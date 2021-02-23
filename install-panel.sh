@@ -76,8 +76,8 @@ user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
 user_password=`sudo pwgen -n 20 -y -1 | tee /root/USERNAME_PASSWORD`
 
 # Assume SSL, will fetch different config if true
-ASSUME_SSL=yes
-CONFIGURE_LETSENCRYPT=yes
+ASSUME_SSL=true
+CONFIGURE_LETSENCRYPT=true
 
 # download URLs
 PANEL_DL_URL="https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz"
