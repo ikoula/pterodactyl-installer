@@ -56,7 +56,7 @@ echo $FQDN > /root/FQDN
 # Default MySQL credentials
 MYSQL_DB="pterodactyl"
 MYSQL_USER="pterodactyl"
-MYSQL_PASSWORD=`sudo pwgen -n 20 -y -1 | tee /root/MYSQL_PASSWORD`
+MYSQL_PASSWORD=`sudo pwgen -n 20 -y -1 | tee /root/PTERODACTYL_MYSQL_PASSWORD`
 
 # Environment
 email="root@${FQDN}"
@@ -70,10 +70,10 @@ user_email="root@${FQDN}"
 # cs051001.ikoula.com
 
 user_username=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
-echo $user_username > /root/USERNAME
+echo $user_username > /root/PTERODACTYL_USERNAME
 user_firstname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
 user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
-user_password=`sudo pwgen -n 20 -y -1 | tee /root/USERNAME_PASSWORD`
+user_password=`sudo pwgen -n 20 -y -1 | tee /root/PTERODACTYL_PASSWORD`
 
 # Assume SSL, will fetch different config if true
 ASSUME_SSL=true
