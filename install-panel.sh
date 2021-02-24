@@ -319,6 +319,7 @@ check_os_comp() {
 # Install composer
 install_composer() {
   echo "* Installing composer.."
+  export HOME="/root" # ugly fix to ensure composer installation will not crash on cloud-init contexts
   curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
   echo "* Composer installed!"
 }
