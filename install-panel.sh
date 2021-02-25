@@ -422,10 +422,6 @@ configure() {
   # configures database
   php artisan migrate --seed --force
 
-  echo "settling down a few seconds"
-  sleep(30)
-  echo "Creating admin user account"
-
   # Create user account
   php artisan p:user:make \
     --email="$user_email" \
