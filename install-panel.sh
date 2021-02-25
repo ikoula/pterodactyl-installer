@@ -73,8 +73,8 @@ user_email="root@${FQDN}"
 
 user_username=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
 echo $user_username > /root/PTERODACTYL_USERNAME
-user_firstname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
-user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_firstname=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
+user_lastname=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
 user_password=`sudo pwgen -n 20 -y -1 | tee /root/PTERODACTYL_PASSWORD`
 
 # Assume SSL, will fetch different config if true
@@ -418,8 +418,13 @@ configure() {
     --username="$MYSQL_USER" \
     --password="$MYSQL_PASSWORD"
 
+  echo "configure database, and do some migrate tasks"
   # configures database
   php artisan migrate --seed --force
+
+  echo "settling down a few seconds"
+  sleep(30)
+  echo "Creating admin user account"
 
   # Create user account
   php artisan p:user:make \
