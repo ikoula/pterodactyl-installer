@@ -68,8 +68,10 @@ user_email="root@${FQDN}"
 # it is of the form
 # csikx015012-EU-FR-IKDC2-Z5-BASIC.ikexpress.com
 # cs051001.ikoula.com
+# When using this script on bare metal hardware pattern must be slightly different :
+# frhbNNNNds.ikexpress.com
 
-user_username=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
+user_username=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
 echo $user_username > /root/PTERODACTYL_USERNAME
 user_firstname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
 user_lastname=`echo ${FQDN} | sed -n 's/^\(cs[[:alnum:]]*\).*/\1/p'`
