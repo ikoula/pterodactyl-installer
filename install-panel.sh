@@ -75,7 +75,7 @@ user_username=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
 echo $user_username > /root/PTERODACTYL_USERNAME
 user_firstname=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
 user_lastname=`echo ${FQDN} | sed -n 's/^\([[:alnum:]]*\).*/\1/p'`
-user_password=`sudo pwgen -n 20 -y -1 | tee /root/PTERODACTYL_PASSWORD`
+user_password=`sudo pwgen -n 20 -y -1 | tr -d "&" | tee /root/PTERODACTYL_PASSWORD`
 
 # Assume SSL, will fetch different config if true
 ASSUME_SSL=true
@@ -935,6 +935,26 @@ main() {
   #  exit 1
   #fi
   perform_install
+
+  # Sending information back 
+
+  PTERODACTYL_PASSWORD=`cat /root/PTERODACTYL_PASSWORD`
+  PTERODACTYL_USERNAME=`cat /root/PTERODACTYL_USERNAME`
+  FQDN=`cat /root/FQDN`
+  SERVER_PUB_IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+  if [[ -z ${SERVER_PUB_IP} ]]; then
+   # Detect public IPv6 address
+   SERVER_PUB_IP=$(ip -6 addr | sed -ne 's|^.* inet6 \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+  fi
+  URL="https://revprx.ikoula.com/index.php?r=wsds/SendClientInfosByIP&TEMPLATE_ONE_CLICK=ONE_CLICK_PTERODACTYL&ADRESSE_IP=${SERVER_PUB_IB}&PTERODACTYL_PASSWORD=${PTERODACTYL_PASSWORD}&PTERODACTYL_USERNAME=${PTERODACTYL_USERNAME}&FQDN=${FQDN}"
+
+  # Sending informations
+  echo $URL > /root/sendinfos.txt
+  /usr/bin/curl "${URL}" >> /root/sendinfos.txt
+
+  rm -rf /root/PTERODACTYL_USERNAME /root/PTERODACTYL_PASSWORD
+  
+
 }
 
 summary() {
