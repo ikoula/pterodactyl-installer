@@ -946,7 +946,7 @@ main() {
    # Detect public IPv6 address
    SERVER_PUB_IP=`/usr/sbin/ip -6 addr | sed -ne 's|^.* inet6 \([^/]*\)/.* scope global.*$|\1|p' | head -1)`
   fi
-  URL="https://revprx.ikoula.com/index.php?r=wsds/SendClientInfosByIP&TEMPLATE_ONE_CLICK=ONE_CLICK_PTERODACTYL&ADRESSE_IP=${SERVER_PUB_IB}&PTERODACTYL_PASSWORD=${PTERODACTYL_PASSWORD}&PTERODACTYL_USERNAME=${PTERODACTYL_USERNAME}&FQDN=${FQDN}"
+  URL="https://revprx.ikoula.com/index.php?r=wsds/SendClientInfosByIP&TEMPLATE_ONE_CLICK=ONE_CLICK_PTERODACTYL&ADRESSE_IP=${SERVER_PUB_IP}&PTERODACTYL_PASSWORD=${PTERODACTYL_PASSWORD}&PTERODACTYL_USERNAME=${PTERODACTYL_USERNAME}&FQDN=${FQDN}"
 
   # Sending informations
   echo $URL > /root/sendinfos.txt
